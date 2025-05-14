@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Farmer Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1583912268181-336f9ef2c103?auto=format&fit=crop&w=1740&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #1f2937;
+        }
+    
+        nav {
+            background-color: rgba(22, 101, 52, 0.9);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+    
+        nav h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+    
+        .logout-btn {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    
+        .logout-btn:hover {
+            background-color: #b91c1c;
+        }
+    
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(6px);
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+    
+        h2 {
+            text-align: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: #166534;
+        }
+    
+        .error-message {
+            color: #b91c1c;
+            background-color: #fee2e2;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+    
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            color: #14532d;
+        }
+    
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+    
+        input,
+        select {
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            background-color: #f9fafb;
+        }
+    
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+    
+        .submit-btn {
+            background-color: #22c55e;
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        .submit-btn:hover {
+            background-color: #16a34a;
+        }
+    
+        .full-width {
+            grid-column: span 2;
+        }
+    
+        .search-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    
+        .search-input {
+            flex: 1 1 250px;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.375rem;
+        }
+    
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+    
+        .search-btn,
+        .reset-btn {
+            background-color: #4ade80;
+            color: #1f2937;
+            border: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+    
+        .search-btn:hover,
+        .reset-btn:hover {
+            background-color: #22c55e;
+            color: white;
+        }
+    
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+    
+        .product-item {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+    
+        .fruit-item {
+            border-left: 4px solid #f97316;
+        }
+    
+        .vegetable-item {
+            border-left: 4px solid #22c55e;
+        }
+    
+        .empty-message {
+            color: #6b7280;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <nav>
+        <h1>Farmer Dashboard</h1>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+    </nav>
+
+    <div class="container">
+        <h2>Welcome, <span id="farmerName">Farmer</span></h2>
+        <div id="errorDisplay" class="error-message"></div>
+
+        <div class="card">
+            <h3>Add New Product</h3>
+            <form id="productForm" class="form-grid">
+                <input type="text" id="name" placeholder="Product Name" required />
+                <input type="number" id="price" placeholder="Price (₹)" required step="0.01" min="0" />
+                <input type="number" id="quantity" placeholder="Quantity (in Kg)" required min="1" />
+                <select id="type" required class="full-width">
+                    <option value="">Select Type</option>
+                    <option value="fruit">Fruit</option>
+                    <option value="vegetable">Vegetable</option>
+                </select>
+                <button type="submit" class="submit-btn full-width">Add Product</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Your Products</h3>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search products..." class="search-input" />
+                <div class="button-group">
+                    <button onclick="searchProducts('fruit')" class="search-btn">Search Fruits</button>
+                    <button onclick="searchProducts('vegetable')" class="search-btn">Search Vegetables</button>
+                    <button onclick="loadProducts(localStorage.getItem('farmerId'))" class="reset-btn">Show All</button>
+                </div>
+            </div>
+            <div id="productList" class="product-list">
+                <p class="empty-message">Loading products...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const email = localStorage.getItem('email');
+            if (!email) {
+                alert("You need to log in first!");
+                window.location.href = "login.html";
+                return;
+            }
+            loadFarmer();
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        function showError(message) {
+            const errorDisplay = document.getElementById('errorDisplay');
+            errorDisplay.textContent = message;
+            errorDisplay.style.display = 'block';
+            setTimeout(() => errorDisplay.style.display = 'none', 5000);
+        }
+
+        async function loadFarmer() {
+            try {
+                const email = localStorage.getItem('email');
+                const res = await fetch(`http://localhost:8085/farmers/byEmail?email=${encodeURIComponent(email)}`);
+                const farmer = await res.json();
+
+                document.getElementById('farmerName').textContent = farmer.name || "Farmer";
+                localStorage.setItem('farmerId', farmer.id);
+                loadProducts(farmer.id);
+            } catch (err) {
+                showError("Unable to fetch farmer details.");
+            }
+        }
+
+        async function loadProducts(farmerId) {
+            if (!farmerId) {
+                showError("Farmer ID not found.");
+                return;
+            }
+
+            document.getElementById('productList').innerHTML = '<p class="empty-message">Loading products...</p>';
+
+            try {
+                const [fruitRes, vegRes] = await Promise.all([
+                    fetch(`http://localhost:8085/products/farmer/${farmerId}/fruits`),
+                    fetch(`http://localhost:8085/products/farmer/${farmerId}/vegetables`)
+                ]);
+                const fruits = await fruitRes.json();
+                const vegetables = await vegRes.json();
+                displayProducts([...fruits, ...vegetables]);
+            } catch (err) {
+                showError("Failed to load products.");
+            }
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('productList');
+            container.innerHTML = '';
+
+            if (!Array.isArray(products) || products.length === 0) {
+                container.innerHTML = '<p class="empty-message">No products found.</p>';
+                return;
+            }
+
+            products.forEach(p => {
+                const type = p.hasOwnProperty('category') ? 'Vegetable' : 'Fruit';
+                const itemClass = type === 'Fruit' ? 'fruit-item' : 'vegetable-item';
+
+                container.innerHTML += `
+          <div class="product-item ${itemClass}">
+            <p><strong>Name:</strong> ${p.name}</p>
+            <p><strong>Price:</strong> ₹${parseFloat(p.price).toFixed(2)}</p>
+            <p><strong>Quantity:</strong> ${p.quantity} Kg</p>
+            <p><strong>Type:</strong> ${type}</p>
+          </div>
+        `;
+            });
+        }
+
+        async function searchProducts(type) {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) {
+                showError("Please enter a search term.");
+                return;
+            }
+
+            document.getElementById('productList').innerHTML = '<p class="empty-message">Searching...</p>';
+
+            try {
+                const response = await fetch(`http://localhost:8085/products/search/${type}s?name=${encodeURIComponent(searchTerm)}`);
+                const results = await response.json();
+                displayProducts(results);
+            } catch (err) {
+                showError("Search failed.");
+            }
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const price = document.getElementById('price').value.trim();
+            const quantity = document.getElementById('quantity').value.trim();
+            const type = document.getElementById('type').value;
+            const farmerId = 1;
+console.log(name);
+console.log(price);
+console.log(quantity);
+console.log(type);
+console.log(farmerId);
+            if (!name || !price || !quantity || !type || !farmerId) {
+                showError("All fields are required.");
+                return;
+            }
+
+            const product = {
+                name: name,
+                price: parseFloat(price),
+                quantity: parseInt(quantity)
+            };
+
+            const endpoint = type === 'fruit'
+                ? `http://localhost:8085/products/add/fruit/${farmerId}`
+                : `http://localhost:8085/products/add/vegetable/${farmerId}`;
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
+
+                if (!res.ok) throw new Error("Failed to add product.");
+
+                loadProducts(farmerId);
+                document.getElementById('productForm').reset();
+            } catch (err) {
+                showError("Error adding product.");
+            }
+        });
+    </script>
+</body>
+
+</html>
